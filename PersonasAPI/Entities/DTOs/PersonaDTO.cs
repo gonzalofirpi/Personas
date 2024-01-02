@@ -10,9 +10,9 @@
 
 		public int Edad { get; set; }
 
-		public ICollection<Auto> Autos { get; set; }
+		public ICollection<Auto>? Autos { get; set; }
 
-		public ICollection<Titulo> Titulos { get; set; }
+		public ICollection<Titulo>? Titulos { get; set; }
 
 		public PersonaDTO() { }
 
@@ -22,8 +22,17 @@
 			this.Nombre = persona.Nombre;
 			this.Apellido = persona.Apellido;
 			this.Edad = persona.Edad;
-			this.Autos = persona.Autos;
-			this.Titulos = persona.Titulos;
+
+			if (persona.Autos != null)
+			{
+				this.Autos = persona.Autos;
+			}
+			else this.Autos = null;
+
+			if (persona.Titulos != null)
+			{
+				this.Titulos = persona.Titulos;
+			} else this.Titulos = null;
 		}
 	}
 }

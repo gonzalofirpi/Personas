@@ -11,19 +11,24 @@ namespace PersonasAPI.Entities
 		public string Nombre { get; set; }
 		public Direccion Dirección { get; set; }
 		public string Telefono { get; set; }
-		public ICollection<Persona> Empleados { get; set; }
+		public ICollection<Persona>? Empleados { get; set; }
 
-        public Empresa()
-        {
-            
-        }
+		public Empresa()
+		{
 
-        public Empresa(string nombre, Direccion direccion, string telefono, ICollection<Persona> empleados)
-        {
-            this.Nombre = nombre;
+		}
+
+		public Empresa(string nombre, Direccion direccion, string telefono, ICollection<Persona>? empleados)
+		{
+			this.Nombre = nombre;
 			this.Dirección = direccion;
 			this.Telefono = telefono;
-			this.Empleados = empleados;
-        }
-    }
+
+			if (empleados != null)
+			{
+				this.Empleados = empleados;
+			}
+			else this.Empleados = null;
+		}
+	}
 }

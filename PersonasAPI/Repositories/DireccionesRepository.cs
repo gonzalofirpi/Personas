@@ -34,6 +34,11 @@ namespace PersonasAPI.Repositories
 			return this.context.Direcciones.FirstOrDefault(d => d.Id == id);
 		}
 
+		public Direccion? FindById(int id)
+		{
+			return this.context.Direcciones.Find(id);
+		}
+
 		public void Save()
 		{
 			this.context.SaveChanges();

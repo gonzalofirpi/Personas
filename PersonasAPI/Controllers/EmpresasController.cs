@@ -45,7 +45,7 @@ namespace PersonasAPI.Controllers
 		[ProducesResponseType(StatusCodes.Status200OK)]
 		public ActionResult<EmpresaDTO> Add([FromBody] EmpresaDTO empresaDTO)
 		{
-			if (empresaDTO == null) return BadRequest();
+			if (empresaDTO == null || empresaDTO.Dirección == null) return BadRequest();
 
 			EmpresaDTO savedEmpresa = this.empresasService.Add(empresaDTO);
 

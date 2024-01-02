@@ -4,18 +4,33 @@ using PersonasAPI.Repositories;
 
 namespace PersonasAPI.Services
 {
-	public class EmpresasService: IService<EmpresaDTO, int>
+	public class EmpresasService : IService<EmpresaDTO, int>
 	{
 		private readonly ICrudRepository<Empresa, int> empresasRepository;
+		private readonly ICrudRepository<Persona, long> personasRepository;
+		private readonly ICrudRepository<Direccion, int> direccionesRepository;
 
-        public EmpresasService(ICrudRepository<Empresa, int> empresasRepository)
-        {
-            this.empresasRepository = empresasRepository;
-        }
+		public EmpresasService(ICrudRepository<Empresa, int> empresasRepository, ICrudRepository<Persona, long> personasRepository, ICrudRepository<Direccion, int> direccionesRepository)
+		{
+			this.empresasRepository = empresasRepository;
+			this.personasRepository = personasRepository;
+			this.direccionesRepository = direccionesRepository;
+		}
 
 		public EmpresaDTO? Add(EmpresaDTO empresaDTO)
 		{
-			Empresa savedEmpresa = new Empresa(empresaDTO.Nombre, empresaDTO.Dirección, empresaDTO.Telefono, empresaDTO.Empleados);
+			Empresa savedEmpresa = new Empresa();
+
+			// Agregar empleados
+			savedEmpresa.Empleados = CargarEmpleados(empresaDTO.Empleados == null? null : empresaDTO.Empleados.ToList());
+
+			// Agregar dirección
+			savedEmpresa.Dirección = CargarDireccion(empresaDTO.Dirección);
+
+			// Agregar resto de atriburos
+			savedEmpresa.Nombre = empresaDTO.Nombre;
+			savedEmpresa.Telefono = empresaDTO.Telefono;
+
 			this.empresasRepository.Add(savedEmpresa);
 			return new EmpresaDTO(savedEmpresa);
 		}
@@ -53,6 +68,54 @@ namespace PersonasAPI.Services
 
 			this.empresasRepository.Update(optionalEmpresa);
 			return new EmpresaDTO(optionalEmpresa);
+		}
+
+		public List<Persona>? CargarEmpleados(List<Persona>? personas)
+		{
+
+			if (personas == null) { return null; }
+
+			List<PersonaDTO> personasDTO  = personas.Select(persona => new PersonaDTO(persona)).ToList();
+			List<Persona> empleados = new List<Persona>();
+
+			foreach (PersonaDTO personaDTO in personasDTO)
+			{
+				if (personaDTO.Documento != null)
+				{
+					Persona persona = this.personasRepository.GetById(personaDTO.Documento);
+
+					if (persona != null)
+					{
+						empleados.Add(persona);
+					}
+					else
+					{
+						empleados.Add(new Persona(personaDTO.Nombre, personaDTO.Apellido, personaDTO.Edad, personaDTO.Autos == null ? null : personaDTO.Autos));
+					}
+
+				}
+				else
+				{
+					empleados.Add(new Persona(personaDTO.Nombre, personaDTO.Apellido, personaDTO.Edad, personaDTO.Autos == null ? null : personaDTO.Autos));
+				}
+			}
+
+			return empleados;
+		}
+
+		public Direccion CargarDireccion(Direccion direccion)
+		{
+			if (direccion.Id != null)
+			{
+				Direccion savedDireccion = this.direccionesRepository.GetById(direccion.Id);
+
+				if (savedDireccion != null) { return savedDireccion; }
+				else { return new Direccion(direccion.Numero, direccion.Calle, direccion.CodigoPostal); }
+			}
+			else
+			{
+				return new Direccion(direccion.Numero, direccion.Calle, direccion.CodigoPostal);
+			}
 		}
 	}
 }
